@@ -143,7 +143,15 @@ const p = new Hero({
       })
     },
     function () { // VN W 被动插件
-
+      // 对同一目标每攻击或施法2次，第3次攻击或施法就会造成目标 14% 最大生命值的真实伤害
+      // 对所有目标的最小伤害: 110
+      this.OAH.push(function (T) {
+        if (this.CAT % 3 === 0) {
+          const dmg = Math.max(this.realDamageOn(T, T.MHP * 0.14), 110)
+          T.HP -= dmg
+          console.log(chalk.redBright(`${this.NM} 圣银弩箭 damage ${dmg.toFixed(0)}`))
+        }
+      })
     }
   ]
 })

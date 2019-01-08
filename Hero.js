@@ -158,8 +158,8 @@ class Hero {
    * 计算和统计真实伤害
    * @param {Hero} T
    */
-  readDamageOn(T, DMG) {
-    const atd = DMG * (1 - T.DRP) * this.DIT(T)
+  realDamageOn(T, DMG) {
+    const atd = DMG * this.DIT(T)
     this.TD += atd
     this.TDR += atd
     return atd
@@ -180,7 +180,7 @@ class Hero {
     this.HP += stolenHP // heal by hp stealing
     this.TS += stolenHP // statistic
     const rep = `${this.NM} damage: ${actualDMG.toFixed(1)}, steal: ${stolenHP.toFixed(1)}`
-    if (!quietMode) console.log(thisTurnIsCrit ? chalk.redBright(rep) : chalk.gray(rep))
+    if (!quietMode) console.log(thisTurnIsCrit ? chalk.red(rep) : chalk.gray(rep))
     this.OAH.forEach(fx => fx.call(this, T))
     T.OADH.forEach(fx => fx.call(T, this))
     if (thisTurnIsCrit) {
