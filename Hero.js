@@ -2,6 +2,8 @@ const chalk = require('chalk').default
 
 const tool = require('./tools')
 
+const quietMode = process.argv.findIndex(a => a.indexOf('-q') !== -1) !== -1
+
 const hero_option = {
   name: '',
   attackPower: 95,
@@ -168,8 +170,8 @@ class Hero {
    */
   attack(T) {
     this.LHT = Hero.ticks
-    console.log(this.NM + ' prev CAT: ' + this.CAT + '\n')
-    console.log(`${this.NM} AP ${this.AP}, AH ${this.AH.toFixed(3)}, HP ${this.HP.toFixed(0)} (APMR ${this.APMR}, AHCR ${this.AHCR})`)
+    // console.log(this.NM + 'CAT: ' + this.CAT + '\n')
+    if (!quietMode) console.log(`${this.NM} AP ${this.AP}, AH ${this.AH.toFixed(3)}, HP ${this.HP.toFixed(0)} (APMR ${this.APMR}, AHCR ${this.AHCR})`)
     this.CAT++
     const thisTurnIsCrit = Math.random() < (this.CR - T.CHCD)
     const actualDMG = this.armorDamageOn(T, this.AP, thisTurnIsCrit)
@@ -178,14 +180,15 @@ class Hero {
     this.HP += stolenHP // heal by hp stealing
     this.TS += stolenHP // statistic
     const rep = `${this.NM} damage: ${actualDMG.toFixed(1)}, steal: ${stolenHP.toFixed(1)}`
-    console.log(thisTurnIsCrit ? chalk.redBright(rep) : chalk.gray(rep))
+    if (!quietMode) console.log(thisTurnIsCrit ? chalk.redBright(rep) : chalk.gray(rep))
     this.OAH.forEach(fx => fx.call(this, T))
     T.OADH.forEach(fx => fx.call(T, this))
     if (thisTurnIsCrit) {
       this.OCHH.forEach(fx => fx.call(this, T, actualDMG))
       T.OCHDH.forEach(fx => fx.call(T, this, actualDMG))
     }
-    console.log(`${this.NM} target ${T.NM}.hp: ${T.HP.toFixed(0)}`)
+    // if (!quietMode) console.log(`${this.NM} target ${T.NM}.hp: ${T.HP.toFixed(0)}`)
+    if (!quietMode) console.log(`${T.NM} AP ${T.AP}, AH ${T.AH.toFixed(3)}, HP ${T.HP.toFixed(0)} (APMR ${T.APMR}, AHCR ${T.AHCR})`)
   }
   print() {
     console.log(`

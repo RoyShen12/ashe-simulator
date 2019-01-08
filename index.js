@@ -2,6 +2,8 @@ const chalk = require('chalk').default
 
 const Hero = require('./Hero')
 
+const quietMode = process.argv.findIndex(a => a.indexOf('-q') !== -1) !== -1
+
 const p = new Hero({
   name: '寒冰',
   maxHealth: 1950,
@@ -36,16 +38,16 @@ const p = new Hero({
       if (this.CAT !== 0 && this.CAT < 11) {
         this.AAH += 12
       }
-      // skill Q, +40% aah/+1.25*AP dmg, trigger after 4 hits, dur 5s, cd 35s
+      // skill Q, +110% aah/+1.25*AP dmg, trigger after 4 hits, dur 5s, cd 35s
       const rangersFocusHasteEnhance = 110
       const rangersFocusAPEnhance = 2.25
       if (!rangersFocus.fired) {
         rangersFocus.prepareStackCount++
         if (
-          (rangersFocus.lastTriggerTick > 35 * Hero._tick || rangersFocus.lastTriggerTick === -1) && // cd has recovered
+          (Hero.ticks - rangersFocus.lastTriggerTick > 35 * Hero._tick || rangersFocus.lastTriggerTick === -1) && // cd has recovered
           rangersFocus.prepareStackCount === 4
         ) { // ready to trigger Q
-          console.log(chalk.yellowBright('ranger\'s focus on'))
+          if (!quietMode) console.log(chalk.yellowBright('射手的专注 on'))
           this.APMR = this.APMR * rangersFocusAPEnhance
           this.AAH += rangersFocusHasteEnhance
           rangersFocus.prepareStackCount = 0
@@ -55,7 +57,7 @@ const p = new Hero({
       }
       else {
         if (Hero.ticks - rangersFocus.lastTriggerTick >= 5 * Hero._tick) { // duration had exceeded
-          console.log(chalk.yellow('ranger\'s focus off'))
+          if (!quietMode) console.log(chalk.yellow('射手的专注 off'))
           rangersFocus.fired = false
           this.APMR = this.APMR / rangersFocusAPEnhance
           this.AAH -= rangersFocusHasteEnhance
@@ -91,7 +93,7 @@ const p = new Hero({
         T.HP -= effect_buf
         this.HP += stolenHP_buf // heal by hp stealing
         this.TS += stolenHP_buf // statistic
-        console.log(chalk.magentaBright(`${this.NM} brk damage: ${effect_buf.toFixed(0)}`))
+        if (!quietMode) console.log(chalk.magentaBright(`${this.NM} 破败 damage: ${effect_buf.toFixed(0)}`))
       })
     },
     function () { // 飓风+绿叉+攻速鞋
@@ -111,6 +113,7 @@ const p = new Hero({
         }
         const effect_buf = this.spellDamageOn(T, 42) // 每次攻击附带42魔法伤害
         T.HP -= effect_buf
+        if (!quietMode) console.log(chalk.magentaBright(`${this.NM} 智慧末刃 damage: ${effect_buf.toFixed(0)}`))
       })
     },
     function () { // 黑切
@@ -150,7 +153,7 @@ const p = new Hero({
 
 const t = new Hero({
   name: '木桩',
-  maxHealth: 50000,
+  maxHealth: 500000,
   attackPower: 400,
   baseAttackHaste: 0.620,
   alternativeAttackHaste: 2.1 * 18,
@@ -163,7 +166,7 @@ const t = new Hero({
     if (this.CAT === 1) {
       const effect_buf = this.armorDamageOn(T, 320)
       T.HP -= effect_buf
-      console.log(`${this.NM} 幕刃 damage: ${effect_buf.toFixed(1)}`)
+      if (!quietMode) console.log(`${this.NM} 幕刃 damage: ${effect_buf.toFixed(1)}`)
     }
   },
   healthRegeneration: 200, // 木桩每秒回复200
@@ -177,9 +180,9 @@ const t = new Hero({
     let lastParryTriggersTick = -1
     let parryCountOneTurn = 0
     return function (attacker) {
-
-      // this.AR += 1
-      // this.MR += 1
+      // 木桩每次受攻击增加1护甲和魔抗
+      this.AR += 1
+      this.MR += 1
 
       // 每失去8%生命值就增加1%伤害抵抗
       this.ADRP = (this.MHP - this.HP) / this.MHP / 8
@@ -196,14 +199,14 @@ const t = new Hero({
           parryCountOneTurn = 0
         }
         else {
-          console.log(chalk.blueBright(`${this.NM} bone plating neutralized 50 damage`))
+          if (!quietMode) console.log(chalk.blueBright(`${this.NM} 格挡 50 damage`))
           this.HP += 50
           parryCountOneTurn++
         }
       }
       // 复苏之风，10秒内恢复损失的生命值的(4%+6)点
       this.HR = ((this.MHP - this.HP) * 0.04 + 6) / 10
-      console.log(chalk.greenBright(`${this.NM} second wind HR: ${this.HR.toFixed(2)}/s total HR: ${(this.HRPT * Hero._tick).toFixed(2)}/s`))
+      if (!quietMode) console.log(chalk.greenBright(`${this.NM} 复苏之风 HR: ${this.HR.toFixed(2)}/s total HR: ${(this.HRPT * Hero._tick).toFixed(2)}/s`))
     }
   }()
 })
@@ -227,11 +230,11 @@ while (t.HP > 0 && p.HP > 0) {
   }
   // 如果可以攻击，就攻击
   if (p.TSH) {
-    console.log(`\n${p.NM} round ${Hero.ticks / Hero._tick} s`)
+    if (!quietMode) console.log(`\n${p.NM} round ${Hero.ticks / Hero._tick} s`)
     p.attack(t)
   }
   if (t.TSH) {
-    console.log(`\n${t.NM} round ${Hero.ticks / Hero._tick} s`)
+    if (!quietMode) console.log(`\n${t.NM} round ${Hero.ticks / Hero._tick} s`)
     t.attack(p)
   }
   // 时间流逝
@@ -239,6 +242,8 @@ while (t.HP > 0 && p.HP > 0) {
   // Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 10) // 休息10ms每tick
 }
 
+console.log(`\n战斗时间 ${(Hero.ticks / Hero._tick).toFixed(1)} s`)
 console.log(`\n    ${t.HP > p.HP ? t.NM : p.NM} win\n`)
+
 p.print()
 t.print()
