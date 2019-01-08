@@ -3,7 +3,12 @@
 ```bash
 $ npm i
 ```
-## run
+## run on windows
 ```bash
-$ node index.js
+$ cls && node index.js
+```
+
+## run on linux
+```bash
+$ clear && node index.js
 ```
