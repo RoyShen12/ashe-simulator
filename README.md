@@ -12,3 +12,8 @@ $ cls && node index.js
 ```bash
 $ clear && node index.js
 ```
+
+## run in quiet mode (only show report after simulating)
+```bash
+$ node index.js -q
+```
