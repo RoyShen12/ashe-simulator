@@ -151,27 +151,27 @@ const p = new Hero({
 const t = new Hero({
   name: '木桩',
   maxHealth: 50000,
-  attackPower: 359,
+  attackPower: 400,
   baseAttackHaste: 0.620,
   alternativeAttackHaste: 2.1 * 18,
   armorPenetrationPercent: 1 - (1 - 0.06), // 天赋-6%
-  armorPenetrationValue: 64, // 幽梦-18 天赋-9 幕刃-18
+  armorPenetrationValue: 64, // 幽梦-18 天赋-9 幕刃-18 ...
   spellPenetrationPercent: 1 - (1 - 0.06), // 天赋-6%
   spellPenetrationValue: 0,
   onAttackingHook: function (T) {
-    // first attack, physics
+    // 幕刃，320伤害
     if (this.CAT === 1) {
       const effect_buf = this.armorDamageOn(T, 320)
       T.HP -= effect_buf
-      console.log(`${this.NM} Duskblade of Draktharr damage: ${effect_buf.toFixed(1)}`)
+      console.log(`${this.NM} 幕刃 damage: ${effect_buf.toFixed(1)}`)
     }
   },
-  healthRegeneration: 118,
-  armor: 276,
-  magicResistance: 239,
-  baseDamageResistancePercent: 0.05,
-  criticalHitDamageResistancePercent: 0.1,
-  criticalHitChangeDecrease: 0.05,
+  healthRegeneration: 200, // 木桩每秒回复200
+  armor: 320,
+  magicResistance: 330,
+  baseDamageResistancePercent: 0.05, // 木桩抵抗5%伤害
+  criticalHitDamageResistancePercent: 0.1, // 木桩抵抗5%暴击伤害
+  criticalHitChangeDecrease: 0.05,　// 木桩降低5%被暴击几率
   onAttackedHook: function () {
     let lockDecreaseAH = false
     let lastParryTriggersTick = -1
@@ -181,15 +181,15 @@ const t = new Hero({
       // this.AR += 1
       // this.MR += 1
 
-      // increase self drp by 1% / 3% hp lost
+      // 每失去8%生命值就增加1%伤害抵抗
       this.ADRP = (this.MHP - this.HP) / this.MHP / 8
       // console.log(`${this.NM} damage resistence now ${this.ADRP}`)
-      // decreade attacker's ah by 15%
+      // 冰霜之心，降低15%攻速
       if (!lockDecreaseAH) {
         attacker.AHCR = attacker.AHCR * 0.85
         lockDecreaseAH = true
       }
-      // bone plating parry 50 damage * 3 times (45s cd)
+      // 天赋，骸骨镀层，每45s抵挡3次伤害50点
       if (Hero.ticks - lastParryTriggersTick > 45 * Hero._tick || lastParryTriggersTick === -1) {
         if (parryCountOneTurn >= 3) {
           lastParryTriggersTick = Hero.ticks
@@ -201,7 +201,7 @@ const t = new Hero({
           parryCountOneTurn++
         }
       }
-      // second wind rec 4% lostHP + 6 (in 10s)
+      // 复苏之风，10秒内恢复损失的生命值的(4%+6)点
       this.HR = ((this.MHP - this.HP) * 0.04 + 6) / 10
       console.log(chalk.greenBright(`${this.NM} second wind HR: ${this.HR.toFixed(2)}/s total HR: ${(this.HRPT * Hero._tick).toFixed(2)}/s`))
     }
@@ -209,12 +209,14 @@ const t = new Hero({
 })
 
 console.log(`${Hero._tick} ticks per second\n`)
+
 p.print()
 t.print()
 
 // ----------------------------------------- simulator start --------------------------------------------
 
 while (t.HP > 0 && p.HP > 0) {
+  // 每刻都自然恢复生命
   if (t.HP < t.MHP) {
     t.HP += t.HRPT
     t.TR += Math.min(t.HRPT, t.MHP - t.HP)
@@ -223,6 +225,7 @@ while (t.HP > 0 && p.HP > 0) {
     p.HP += p.HRPT
     p.TR += Math.min(p.HRPT, p.MHP - p.HP)
   }
+  // 如果可以攻击，就攻击
   if (p.TSH) {
     console.log(`\n${p.NM} round ${Hero.ticks / Hero._tick} s`)
     p.attack(t)
@@ -231,6 +234,7 @@ while (t.HP > 0 && p.HP > 0) {
     console.log(`\n${t.NM} round ${Hero.ticks / Hero._tick} s`)
     t.attack(p)
   }
+  // 时间流逝
   Hero.ticks++
   // Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 10) // 休息10ms每tick
 }
