@@ -238,7 +238,7 @@ class Hero {
     const rep = `伤害: ${actualDMG.toFixed(0)}, 吸血: ${stolenHP[1].toFixed(0)} / ${stolenHP[0].toFixed(0)}`
     if (!quietMode) console.log(thisTurnIsCrit ? chalk.red(rep) : chalk.gray(rep))
     this.OAH.forEach(fx => fx.call(this, T))
-    T.OADH.forEach(fx => fx.call(T, this))
+    T.OADH.forEach(fx => fx.call(T, this, actualDMG))
     if (thisTurnIsCrit) {
       this.OCHH.forEach(fx => fx.call(this, T, actualDMG))
       T.OCHDH.forEach(fx => fx.call(T, this, actualDMG))

@@ -45,9 +45,9 @@ const p = new Hero({
   },
   equipments: [
     equip.Custom.custom_1_adc,
-
+    // equip.special.ShaunaVayne_W,
     equip.special.Gnar_W,
-    // equip.special.Ashe_Q,
+    equip.special.Ashe_Q,
     equip.AttackSeries.BladeOfTheRuinedKing,
     equip.AttackSeries.BerserkersGreaves,
     equip.AttackSeries.GuinsoosRageblade,
@@ -87,7 +87,7 @@ const t = new Hero({
   onAttackedHook: function () {
     let lastParryTriggersTick = -1
     let parryCountOneTurn = 0
-    return function () {
+    return function (A, DMG) {
 
       // 木桩每次受攻击增加护甲和魔抗
       this.AR += 8
@@ -104,7 +104,7 @@ const t = new Hero({
         }
         else {
           if (!quietMode) console.log(chalk.blueBright(`${this.NM} 格挡 50 damage`))
-          this.HP += 50
+          this.HP += Math.min(50, DMG)
           parryCountOneTurn++
         }
       }

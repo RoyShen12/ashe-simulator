@@ -141,6 +141,7 @@ const AttackSeries = {
         this.OAH.filter(fx => fx.name !== 'Guinsoo').forEach(fx => fx.call(this, T))
         const effect_buf = this.spellDamageOn(T, 15) // 每次攻击附带15魔法伤害
         T.HP -= effect_buf
+        if (!quietMode) console.log(chalk.magentaBright(`${this.NM} 鬼索的狂暴之刃 damage: ${effect_buf.toFixed(0)}`))
       }
       if (!quietMode) console.log(chalk.magentaBright(`${this.NM} 鬼索的狂暴之刃 damage: ${effect_buf.toFixed(0)}`))
     })
@@ -394,8 +395,8 @@ const special = {
 const Custom = {
   custom_1_adc: function () {
     this.OAH.push(function () {
-      this.APP = 1 - (1 - this.APP) * (1 - 0.01)
-      // this.AAH += 110
+      // this.APP = 1 - (1 - this.APP) * (1 - 0.01)
+      this.HSOH += 0.01
     })
   }
 }
