@@ -17,15 +17,15 @@ const p = new Hero({
   spellPenetrationPercent: 1 - (1 - 0.06), // 百分比法术穿透 计算同护甲 天赋-6%
   spellPenetrationValue: 0, // 固定法穿
   critRate: 0, // 暴击率 格式 0.x 超过100%效果为100%
-  criticalDamagePercent: 2.000, // 暴击伤害
+  criticalDamagePercent: 3.000, // 暴击伤害
   onAttackingHook: function () {
     let icount = 1
     return function (T) {
-      // buffer, +5 ap/hit, max 6, dur 5s
+      // buffer, +xx ap/hit, max 6, dur 5s
       if (icount++ !== 0 && icount++ < 7) {
-        this.BAP += 5
+        this.BAP += 45
       }
-      // buffer, +6% aah/hit, max 10, dur 6s
+      // buffer, +xx% aah/hit, max 10, dur 6s
       if (icount++ !== 0 && icount++ < 11) {
         this.AAH += 12
       }
